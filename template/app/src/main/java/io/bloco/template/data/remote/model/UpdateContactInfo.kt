@@ -2,9 +2,8 @@ package io.bloco.template.data.remote.model
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
-import java.io.Serializable
 
-data class Contacts(
+data class UpdateContactInfo (
     @Expose
     @SerializedName("id")
     val id: Int,
@@ -22,8 +21,7 @@ data class Contacts(
     val email: String,
     @Expose
     @SerializedName("isStarred")
-    val isStarred: Int,
-    @Expose
-    @SerializedName("updateContactInfo")
-    val updateContactInfo: UpdateContactInfo
-) : Serializable
+    val isStarred: Int
+
+
+)
