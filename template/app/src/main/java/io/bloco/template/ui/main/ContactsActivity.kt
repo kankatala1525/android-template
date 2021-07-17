@@ -1,5 +1,6 @@
 package io.bloco.template.ui.main
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -107,6 +108,10 @@ class ContactsActivity : AppCompatActivity(), ContactsAdapter.ContactItemListene
     }
 
     override fun onClickedContact(contact: Contacts) {
+
+        val intent = Intent(this,ContactDetailsActivity::class.java)
+        intent.putExtra("details",contact)
+        startActivity(intent)
 
     }
 }
