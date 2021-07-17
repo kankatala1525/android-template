@@ -13,14 +13,16 @@ import io.bloco.template.R
 import io.bloco.template.data.remote.ApiHelper
 import io.bloco.template.data.remote.RetrofitBuilder
 import io.bloco.template.data.remote.model.Contacts
+import io.bloco.template.databinding.ActivityContactsBinding
 import io.bloco.template.ui.base.ViewModelFactory
 import io.bloco.template.ui.main.adapter.ContactsAdapter
 import io.bloco.template.ui.viewmodel.ContactViewModel
 import io.bloco.template.utils.Resource
 import kotlinx.android.synthetic.main.activity_contacts.*
 
-class ContactsActivity : AppCompatActivity() {
+class ContactsActivity : AppCompatActivity(), ContactsAdapter.ContactItemListener {
 
+    lateinit var contactsBinding: ActivityContactsBinding
     lateinit var contactViewModel: ContactViewModel
     lateinit var contactsAdapter: ContactsAdapter
 
@@ -28,7 +30,8 @@ class ContactsActivity : AppCompatActivity() {
     private var totalAvailablePages = 1
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_contacts)
+        contactsBinding= ActivityContactsBinding.inflate(layoutInflater)
+        setContentView(contactsBinding.root)
 
         setupViewModel()
         setupUI()
@@ -47,20 +50,20 @@ class ContactsActivity : AppCompatActivity() {
     }
     private fun setupUI() {
 
-        contactsAdapter = ContactsAdapter(arrayListOf())
-        recyclerView.addItemDecoration(
+        contactsAdapter = ContactsAdapter(arrayListOf(),this)
+        contactsBinding.recyclerView.addItemDecoration(
             DividerItemDecoration(
                 recyclerView.context,
                 (recyclerView.layoutManager as LinearLayoutManager).orientation
             )
         )
-        recyclerView.adapter= contactsAdapter
+        contactsBinding.recyclerView.adapter= contactsAdapter
 
-        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener(){
+        contactsBinding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener(){
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-                if(recyclerView.canScrollVertically(1)){
+                if(!contactsBinding.recyclerView.canScrollVertically(1)){
                     if(currentPage<=totalAvailablePages){
                         currentPage+=1
                         getContacts()
@@ -77,21 +80,21 @@ class ContactsActivity : AppCompatActivity() {
             it?.let { resource ->
                 when (resource.status) {
                     Resource.Status.SUCCESS -> {
-                        recyclerView.visibility = View.VISIBLE
-                        progressBar.visibility = View.GONE
+                        contactsBinding.recyclerView.visibility = View.VISIBLE
+                        contactsBinding.progressBar.visibility = View.GONE
                         resource.data?.let { contactsList ->
                             totalAvailablePages=contactsList.body()!!.meta.pageSize
                             retrieveList(contactsList.body()!!.content)
                         }
                     }
                     Resource.Status.ERROR -> {
-                        recyclerView.visibility = View.VISIBLE
-                        progressBar.visibility = View.GONE
+                        contactsBinding.recyclerView.visibility = View.VISIBLE
+                        contactsBinding.progressBar.visibility = View.GONE
                         Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
                     }
                     Resource.Status.LOADING -> {
-                        progressBar.visibility = View.VISIBLE
-                        recyclerView.visibility = View.VISIBLE
+                        contactsBinding.progressBar.visibility = View.VISIBLE
+                        contactsBinding.recyclerView.visibility = View.VISIBLE
                     }
                 }
             }
@@ -101,5 +104,9 @@ class ContactsActivity : AppCompatActivity() {
         contactsAdapter.apply {
             addContacts(contactList)
         }
+    }
+
+    override fun onClickedContact(contact: Contacts) {
+
     }
 }
